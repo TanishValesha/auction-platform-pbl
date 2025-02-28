@@ -1,8 +1,8 @@
-import AuctionGrid from "../_components/AuctionGrid";
-import Dashboard from "../_components/Dashboard";
-import Header from "../_components/Header";
-import Sidebar from "../_components/Sidebar";
-import Tabs from "../_components/Tabs";
+import AuctionGrid from "../../_components/AuctionGrid";
+import Dashboard from "../../_components/Dashboard";
+import Header from "../../_components/Header";
+import Sidebar from "../../_components/Sidebar";
+import Tabs from "../../_components/Tabs";
 
 interface Auction {
   id: number;
