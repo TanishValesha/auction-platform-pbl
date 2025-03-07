@@ -17,8 +17,8 @@ export async function middleware(request: NextRequest) {
 
   try {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jwtVerify(token.value, secret);
-    const url = request.nextUrl.pathname;
+    // const { payload } = await jwtVerify(token.value, secret);
+    // const url = request.nextUrl.pathname;
 
     // if (
     //   url.startsWith("/api/complaints") &&

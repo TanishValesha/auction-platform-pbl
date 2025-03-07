@@ -361,6 +361,8 @@ function App() {
         `/api/getCurrentUser/${formData.email}`
       );
       currentUser = await currentUserResponse.json();
+      console.log(currentUser);
+
       setUser(currentUser);
     } else {
       const currentUserResponse = await fetch(

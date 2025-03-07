@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.9.11",
     "@prisma/client": "^6.3.0",
+    "@supabase/supabase-js": "^2.49.1",
     "@types/bcrypt": "^5.0.2",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
@@ -22,6 +23,7 @@
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "react-toastify": "^11.0.3",
+    "uuid": "^11.1.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

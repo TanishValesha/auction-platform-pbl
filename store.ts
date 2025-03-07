@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 interface UserInterface {
-  _id: string;
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -16,12 +16,14 @@ interface UserStore {
   user: UserInterface | null;
   setUser: (userData: UserInterface) => void;
   clearUser: () => void;
+  getUser: () => UserInterface | null;
 }
 
-const useUserStore = create<UserStore>((set) => ({
+const useUserStore = create<UserStore>((set, get) => ({
   user: null,
   setUser: (userData) => set({ user: userData }),
   clearUser: () => set({ user: null }),
+  getUser: () => get().user,
 }));
 
 export default useUserStore;

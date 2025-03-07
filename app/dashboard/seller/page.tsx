@@ -3,35 +3,35 @@
 import { useState } from "react";
 import {
   Gavel,
-  Clock,
+  // Clock,
   DollarSign,
-  Trophy,
+  // Trophy,
   Search,
   Bell,
   User,
-  ArrowUpRight,
-  Timer,
-  Home,
+  // ArrowUpRight,
+  // Timer,
+  // Home,
   Heart,
-  History,
+  // History,
   Settings,
   LogOut,
   Menu,
   X,
-  Package,
+  // Package,
   PlusCircle,
   BarChart2,
-  Tag,
+  // Tag,
   Truck,
-  Edit,
-  Trash2,
+  // Edit,
+  // Trash2,
   Eye,
-  AlertCircle,
+  // AlertCircle,
   CheckCircle,
-  Filter,
-  Calendar,
-  ChevronDown,
-  ChevronUp,
+  // Filter,
+  // Calendar,
+  // ChevronDown,
+  // ChevronUp,
   Star,
 } from "lucide-react";
 import Image from "next/image";
@@ -47,7 +47,7 @@ interface Auction {
   image: string;
   bids: number;
   category: string;
-  status: "active" | "scheduled" | "ended" | "draft";
+  status: "active" | "scheduled" | "ended";
   views: number;
   watchers: number;
   endDate: string;
@@ -55,11 +55,11 @@ interface Auction {
 }
 
 export default function SellerDashboard() {
-  const [activeTab, setActiveTab] = useState("active");
+  // const [activeTab, setActiveTab] = useState("active");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState("endDate");
-  const [sortDirection, setSortDirection] = useState("asc");
+  // const [showFilters, setShowFilters] = useState(false);
+  // const [sortBy, setSortBy] = useState("endDate");
+  // const [sortDirection, setSortDirection] = useState("asc");
 
   const activeAuctions: Auction[] = [
     {
@@ -77,7 +77,6 @@ export default function SellerDashboard() {
       views: 156,
       watchers: 12,
       endDate: "2025-06-15",
-      featured: true,
     },
     {
       id: 2,
@@ -112,77 +111,58 @@ export default function SellerDashboard() {
     },
   ];
 
-  const scheduledAuctions: Auction[] = [
-    {
-      id: 4,
-      title: "Vintage Camera Collection",
-      currentBid: null,
-      startingPrice: 500,
-      timeLeft: "Starts in 2d",
-      image:
-        "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80",
-      bids: 0,
-      category: "Electronics",
-      status: "scheduled",
-      views: 0,
-      watchers: 0,
-      endDate: "2025-06-20",
-    },
-  ];
+  // const scheduledAuctions: Auction[] = [
+  //   {
+  //     id: 4,
+  //     title: "Vintage Camera Collection",
+  //     currentBid: null,
+  //     startingPrice: 500,
+  //     timeLeft: "Starts in 2d",
+  //     image:
+  //       "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80",
+  //     bids: 0,
+  //     category: "Electronics",
+  //     status: "scheduled",
+  //     views: 0,
+  //     watchers: 0,
+  //     endDate: "2025-06-20",
+  //   },
+  // ];
 
-  const endedAuctions: Auction[] = [
-    {
-      id: 5,
-      title: "Handcrafted Leather Bag",
-      currentBid: 350,
-      startingPrice: 200,
-      timeLeft: "Ended",
-      image:
-        "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80",
-      bids: 8,
-      category: "Fashion",
-      status: "ended",
-      views: 112,
-      watchers: 5,
-      endDate: "2025-06-10",
-    },
-    {
-      id: 6,
-      title: "Limited Edition Vinyl Records",
-      currentBid: 120,
-      startingPrice: 80,
-      timeLeft: "Ended",
-      image:
-        "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80",
-      bids: 5,
-      category: "Music",
-      status: "ended",
-      views: 78,
-      watchers: 3,
-      endDate: "2025-06-08",
-    },
-  ];
-
-  const draftAuctions: Auction[] = [
-    {
-      id: 7,
-      title: "Vintage Pocket Watch",
-      currentBid: null,
-      startingPrice: 300,
-      timeLeft: "Draft",
-      image:
-        "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?auto=format&fit=crop&w=600&q=80",
-      bids: 0,
-      category: "Accessories",
-      status: "draft",
-      views: 0,
-      watchers: 0,
-      endDate: "",
-    },
-  ];
+  // const endedAuctions: Auction[] = [
+  //   {
+  //     id: 5,
+  //     title: "Handcrafted Leather Bag",
+  //     currentBid: 350,
+  //     startingPrice: 200,
+  //     timeLeft: "Ended",
+  //     image:
+  //       "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80",
+  //     bids: 8,
+  //     category: "Fashion",
+  //     status: "ended",
+  //     views: 112,
+  //     watchers: 5,
+  //     endDate: "2025-06-10",
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "Limited Edition Vinyl Records",
+  //     currentBid: 120,
+  //     startingPrice: 80,
+  //     timeLeft: "Ended",
+  //     image:
+  //       "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80",
+  //     bids: 5,
+  //     category: "Music",
+  //     status: "ended",
+  //     views: 78,
+  //     watchers: 3,
+  //     endDate: "2025-06-08",
+  //   },
+  // ];
 
   const sidebarItems = [
-    { icon: <Home className="h-5 w-5" />, label: "Home", href: "/" },
     {
       icon: <Gavel className="h-5 w-5" />,
       label: "My Listings",
@@ -211,20 +191,20 @@ export default function SellerDashboard() {
     },
   ];
 
-  const getAuctionsForTab = () => {
-    switch (activeTab) {
-      case "active":
-        return activeAuctions;
-      case "scheduled":
-        return scheduledAuctions;
-      case "ended":
-        return endedAuctions;
-      case "draft":
-        return draftAuctions;
-      default:
-        return activeAuctions;
-    }
-  };
+  // const getAuctionsForTab = () => {
+  //   switch (activeTab) {
+  //     case "active":
+  //       return activeAuctions;
+  //     case "scheduled":
+  //       return scheduledAuctions;
+  //     case "ended":
+  //       return endedAuctions;
+  //     case "draft":
+  //       return draftAuctions;
+  //     default:
+  //       return [];
+  //   }
+  // };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -235,49 +215,28 @@ export default function SellerDashboard() {
             Active
           </span>
         );
-      case "scheduled":
-        return (
-          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-            <Calendar className="h-3 w-3 mr-1" />
-            Scheduled
-          </span>
-        );
-      case "ended":
-        return (
-          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-            <Clock className="h-3 w-3 mr-1" />
-            Ended
-          </span>
-        );
-      case "draft":
-        return (
-          <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-            <Edit className="h-3 w-3 mr-1" />
-            Draft
-          </span>
-        );
       default:
         return null;
     }
   };
 
-  const toggleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(field);
-      setSortDirection("asc");
-    }
-  };
+  // const toggleSort = (field: string) => {
+  //   if (sortBy === field) {
+  //     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  //   } else {
+  //     setSortBy(field);
+  //     setSortDirection("asc");
+  //   }
+  // };
 
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return null;
-    return sortDirection === "asc" ? (
-      <ChevronUp className="h-4 w-4" />
-    ) : (
-      <ChevronDown className="h-4 w-4" />
-    );
-  };
+  // const getSortIcon = (field: string) => {
+  //   if (sortBy !== field) return null;
+  //   return sortDirection === "asc" ? (
+  //     <ChevronUp className="h-4 w-4" />
+  //   ) : (
+  //     <ChevronDown className="h-4 w-4" />
+  //   );
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -359,9 +318,9 @@ export default function SellerDashboard() {
         </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto py-8">
           {/* Seller Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             {[
               {
                 icon: <Gavel className="h-6 w-6 text-indigo-600" />,
@@ -397,52 +356,21 @@ export default function SellerDashboard() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Create Listing Button */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900">My Listings</h1>
             <Link
-              href="/seller/create"
+              href="/dashboard/seller/create"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <PlusCircle className="h-5 w-5 mr-2" />
               Create New Listing
             </Link>
           </div>
-
-          {/* Tabs */}
-          <div className="border-b border-gray-200 mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <nav className="flex space-x-8 overflow-x-auto pb-2 sm:pb-0">
-                {["active", "scheduled", "ended", "draft"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`${
-                      activeTab === tab
-                        ? "border-indigo-500 text-indigo-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm capitalize`}
-                  >
-                    {tab} Listings
-                  </button>
-                ))}
-              </nav>
-              <div className="flex items-center mt-4 sm:mt-0">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors"
-                >
-                  <Filter className="h-5 w-5" />
-                  <span>Filters</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
           {/* Filters */}
-          {showFilters && (
+          {/* {showFilters && (
             <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
@@ -506,7 +434,7 @@ export default function SellerDashboard() {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Listings Table */}
           <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-8">
@@ -559,7 +487,7 @@ export default function SellerDashboard() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {getAuctionsForTab().map((auction) => (
+                  {activeAuctions.map((auction) => (
                     <tr key={auction.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -632,17 +560,6 @@ export default function SellerDashboard() {
                           <button className="text-indigo-600 hover:text-indigo-900">
                             <Eye className="h-5 w-5" />
                           </button>
-                          {(auction.status === "draft" ||
-                            auction.status === "scheduled") && (
-                            <button className="text-blue-600 hover:text-blue-900">
-                              <Edit className="h-5 w-5" />
-                            </button>
-                          )}
-                          {auction.status === "draft" && (
-                            <button className="text-red-600 hover:text-red-900">
-                              <Trash2 className="h-5 w-5" />
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -651,51 +568,8 @@ export default function SellerDashboard() {
               </table>
             </div>
           </div>
-
-          {/* Empty State */}
-          {getAuctionsForTab().length === 0 && (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                {activeTab === "active" ? (
-                  <Gavel className="h-8 w-8 text-gray-400" />
-                ) : activeTab === "scheduled" ? (
-                  <Calendar className="h-8 w-8 text-gray-400" />
-                ) : activeTab === "ended" ? (
-                  <Clock className="h-8 w-8 text-gray-400" />
-                ) : (
-                  <Edit className="h-8 w-8 text-gray-400" />
-                )}
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">
-                {activeTab === "active"
-                  ? "No active listings"
-                  : activeTab === "scheduled"
-                  ? "No scheduled listings"
-                  : activeTab === "ended"
-                  ? "No completed listings"
-                  : "No draft listings"}
-              </h3>
-              <p className="text-gray-500 mb-4">
-                {activeTab === "active"
-                  ? "Create a new listing to start selling"
-                  : activeTab === "scheduled"
-                  ? "Schedule listings to go live at a future date"
-                  : activeTab === "ended"
-                  ? "Your completed auctions will appear here"
-                  : "Save listings as drafts to finish them later"}
-              </p>
-              <Link
-                href="/seller/create"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <PlusCircle className="h-5 w-5 mr-2" />
-                Create New Listing
-              </Link>
-            </div>
-          )}
-
           {/* Quick Analytics */}
-          {activeTab === "active" && activeAuctions.length > 0 && (
+          {/* {activeTab === "active" && activeAuctions.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">
                 Quick Analytics
@@ -797,7 +671,7 @@ export default function SellerDashboard() {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
         </main>
       </div>
     </div>

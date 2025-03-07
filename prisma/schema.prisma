@@ -19,6 +19,54 @@ model User {
   companyName  String?
   businessType String?
   createdAt    DateTime @default(now())
+  items        Item[]
+}
+
+model Item {
+  id             String @id @default(uuid())
+  ownerId        String
+  owner          User @relation(fields: [ownerId], references: [id])    
+  title          String
+  description    String
+  currentBid     Int @default(0)
+  startingPrice  Int
+  buyNowPrice    Int?
+  imageLinks     String[]
+  bids           Int @default(0)
+  category       ItemType
+  condition      ItemCondition
+  isActive       Boolean
+  views          Int @default(0)
+  watchers       Int @default(0)
+  duration       Int
+  startDateTime  DateTime
+  timeLeft       String
+}
+
+enum ItemCondition {
+  new
+  like_new
+  excellent
+  good
+  fair
+  poor
+}
+enum ItemType {
+  Art
+  Collectibles
+  Electronics
+  Fashion
+  Furniture
+  Jewelry
+  Music
+  Accessories
+  Home 
+  Decor
+  Books
+  Sports
+  Toys
+  Vehicles
+  Other
 }
 
 enum UserType {
