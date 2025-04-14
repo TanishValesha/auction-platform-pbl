@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+// import { v4 as uuidv4 } from "uuid";
 import {
   Camera,
   Calendar,
@@ -15,7 +16,6 @@ import {
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import supabase from "@/supabase";
-import useUserStore from "@/store";
 
 interface ListingFormProps {
   categories: string[];
@@ -25,17 +25,15 @@ export default function ListingForm({ categories }: ListingFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const user = useUserStore((state) => state.getUser());
+  // const user = useUserStore((state) => state.user);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "",
+    category: "Art",
     condition: "new",
-    startingPrice: "",
-    reservePrice: "",
-    buyNowPrice: "",
-    duration: "7",
-    startTime: "",
+    startingPrice: 0,
+    duration: 7,
+    startDateTime: "",
     images: [] as File[],
   });
 
@@ -49,13 +47,13 @@ export default function ListingForm({ categories }: ListingFormProps) {
   ];
 
   const durations = [
-    { value: "1", label: "1 day" },
-    { value: "3", label: "3 days" },
-    { value: "5", label: "5 days" },
-    { value: "7", label: "7 days" },
-    { value: "10", label: "10 days" },
-    { value: "14", label: "14 days" },
-    { value: "30", label: "30 days" },
+    { value: 1, label: "1 day" },
+    { value: 3, label: "3 days" },
+    { value: 5, label: "5 days" },
+    { value: 7, label: "7 days" },
+    { value: 10, label: "10 days" },
+    { value: 14, label: "14 days" },
+    { value: 30, label: "30 days" },
   ];
 
   //   const shippingMethods = [
@@ -63,9 +61,7 @@ export default function ListingForm({ categories }: ListingFormProps) {
   //     { value: "express", label: "Express Shipping" },
   //     { value: "local_pickup", label: "Local Pickup" },
   //     { value: "freight", label: "Freight Shipping" },
-  //   ];
-
-  console.log(user);
+  //   ];s
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -103,17 +99,58 @@ export default function ListingForm({ categories }: ListingFormProps) {
       // 1. Upload images to storage
       // 2. Create the auction listing
       // 3. Handle success/error
-      console.log(formData.images);
 
-      formData.images.map(async (image) => {
-        const { data, error } = await supabase.storage
-          .from(`item-images/${user?.id}`)
-          .upload(`${image.name}`, image);
-        if (error) {
-          console.log(error);
-        } else {
-        }
+      const uploadImages = async (formData: any) => {
+        const uploadedImageLinks = await Promise.all(
+          formData.images.map(async (image) => {
+            const fileName = `${uuidv4()}-${image.name}`;
+
+            const { data, error } = await supabase.storage
+              .from("item-images")
+              .upload(fileName, image);
+
+            if (error) {
+              console.log("Upload Error:", error);
+              return null; // Return null for failed uploads
+            }
+
+            // Get the public URL of the uploaded image
+            const { data: publicUrlData } = supabase.storage
+              .from("item-images")
+              .getPublicUrl(fileName);
+
+            return publicUrlData.publicUrl;
+          })
+        );
+
+        // Remove null values (failed uploads)
+        const imageLinks = uploadedImageLinks.filter((url) => url !== null);
+
+        return imageLinks;
+      };
+
+      const imageLinks = await uploadImages(formData);
+      console.log(imageLinks);
+
+      const response = await fetch("http://localhost:3000/api/list-item", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          condition: formData.condition,
+          startingPrice: formData.startingPrice,
+          duration: formData.duration,
+          startDateTime: new Date(formData.startDateTime).toISOString(),
+          imageLinks: imageLinks,
+        }),
       });
+
+      console.log(response);
+
       router.push("/dashboard/seller");
     } catch (error) {
       console.error("Error creating listing:", error);
@@ -309,39 +346,11 @@ export default function ListingForm({ categories }: ListingFormProps) {
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    startingPrice: e.target.value,
+                    startingPrice: parseFloat(e.target.value) || 0,
                   }))
                 }
                 className="block w-full text-black pl-10 pr-12 sm:text-sm p-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                 required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="buyNowPrice"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Buy Now Price (Optional)
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <DollarSign className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="number"
-                id="buyNowPrice"
-                min="0"
-                step="0.01"
-                value={formData.buyNowPrice}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    buyNowPrice: e.target.value,
-                  }))
-                }
-                className="block w-full p-2 text-black pl-10 pr-12 sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
           </div>
@@ -363,7 +372,10 @@ export default function ListingForm({ categories }: ListingFormProps) {
               id="duration"
               value={formData.duration}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, duration: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  duration: parseInt(e.target.value, 10) || 0,
+                }))
               }
               className="mt-1 block w-full text-black bg-white rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
@@ -378,18 +390,21 @@ export default function ListingForm({ categories }: ListingFormProps) {
 
           <div>
             <label
-              htmlFor="startTime"
+              htmlFor="startDateTime"
               className="block text-sm font-medium text-gray-700"
             >
               Start Time and Date
             </label>
             <input
               type="datetime-local"
-              id="startTime"
-              value={formData.startTime}
+              id="startDateTime"
+              value={formData.startDateTime}
               required
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, startTime: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  startDateTime: e.target.value,
+                }))
               }
               className="mt-1 block w-full text-black bg-white rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />

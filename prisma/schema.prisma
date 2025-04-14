@@ -7,6 +7,17 @@ datasource db {
   url      = env("DB_URL_STRING")
 }
 
+model Bid {
+  id        String   @id @default(uuid())
+  placedAmount    Int
+  createdAt DateTime @default(now())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id])
+}
+
+
 model User {
   id           String  @id @default(uuid())
   email        String  @unique
@@ -20,6 +31,7 @@ model User {
   businessType String?
   createdAt    DateTime @default(now())
   items        Item[]
+  bids         Bid[]
 }
 
 model Item {
@@ -30,17 +42,15 @@ model Item {
   description    String
   currentBid     Int @default(0)
   startingPrice  Int
-  buyNowPrice    Int?
   imageLinks     String[]
   bids           Int @default(0)
   category       ItemType
   condition      ItemCondition
-  isActive       Boolean
   views          Int @default(0)
   watchers       Int @default(0)
   duration       Int
   startDateTime  DateTime
-  timeLeft       String
+  bidsList         Bid[]
 }
 
 enum ItemCondition {

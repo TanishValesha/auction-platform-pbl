@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Gavel,
   Clock,
@@ -40,12 +41,34 @@ interface Auction {
   status?: "winning" | "outbid" | "ended" | null;
 }
 
+interface Item {
+  id: string;
+  title: string;
+  description: string;
+  startingPrice: number;
+  imageLinks: string[];
+  category: string;
+  condition: string;
+  isActive: boolean;
+  duration: number;
+  startDateTime: string;
+  timeLeft: string;
+  currentBid: number;
+  bids: number;
+  views: number;
+  watchers: number;
+}
+
 export default function BuyerDashboard() {
   const [activeTab, setActiveTab] = useState("watching");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [showFilters, setShowFilters] = useState(false);
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const myBids: Auction[] = [
     {
@@ -242,6 +265,68 @@ export default function BuyerDashboard() {
     }
   };
 
+  function calculateTimeFields(startDateTime: Date, durationInDays: number) {
+    const now = new Date();
+    const start = new Date(startDateTime);
+    const end = new Date(
+      start.getTime() + durationInDays * 24 * 60 * 60 * 1000
+    );
+
+    // Auction hasn't started yet
+    if (now < start) {
+      return {
+        timeLeft: "Auction not started",
+        isActive: false,
+      };
+    }
+
+    const secondsLeft = Math.max(
+      0,
+      Math.floor((end.getTime() - now.getTime()) / 1000)
+    );
+
+    const days = Math.floor(secondsLeft / (3600 * 24));
+    const hours = Math.floor((secondsLeft % (3600 * 24)) / 3600);
+    const minutes = Math.floor((secondsLeft % 3600) / 60);
+    const seconds = secondsLeft % 60;
+
+    const timeLeft = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+    return {
+      timeLeft,
+      isActive: secondsLeft > 0,
+    };
+  }
+
+  useEffect(() => {
+    async function fetchItems() {
+      try {
+        const res = await fetch("http://localhost:3000/api/list-item", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch items");
+        }
+
+        const data = await res.json();
+        setItems(data);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchItems();
+  }, []);
+
+  if (loading) return <p className="text-center">Loading items...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -326,27 +411,6 @@ export default function BuyerDashboard() {
           {/* Tabs */}
           <div className="border-b border-gray-200 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <nav className="flex space-x-8 overflow-x-auto pb-2 sm:pb-0">
-                {["bids", "watching", "recommended", "won"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`${
-                      activeTab === tab
-                        ? "border-indigo-500 text-indigo-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm capitalize`}
-                  >
-                    {tab === "bids"
-                      ? "My Bids"
-                      : tab === "recommended"
-                      ? "For You"
-                      : tab === "won"
-                      ? "Won Auctions"
-                      : "Watchlist"}
-                  </button>
-                ))}
-              </nav>
               <div className="flex items-center mt-4 sm:mt-0">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
@@ -407,30 +471,46 @@ export default function BuyerDashboard() {
 
           {/* Auctions Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getAuctionsForTab().map((auction) => (
+            {items.map((auction) => (
               <div
                 key={auction.id}
                 className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div className="relative h-48">
                   <Image
-                    src={auction.image}
+                    src={auction.imageLinks[0]}
                     alt={auction.title}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-sm flex items-center">
+                  <div className="absolute top-2 right-2 bg-black bg-opacity-100 text-white px-2 py-1 rounded-full text-sm flex items-center">
                     <Timer className="h-4 w-4 mr-1" />
-                    {auction.timeLeft}
+                    {
+                      calculateTimeFields(
+                        new Date(auction.startDateTime),
+                        auction.duration
+                      ).timeLeft
+                    }
                   </div>
-                  {auction.isWatching && (
-                    <div className="absolute top-2 left-2 bg-indigo-600 text-white px-2 py-1 rounded-full text-sm flex items-center">
-                      <Eye className="h-4 w-4 mr-1" />
-                      Watching
-                    </div>
-                  )}
-                  {auction.status && (
+                  <div
+                    className={`absolute top-10 right-2 px-2 py-1 rounded-full text-sm flex items-center ${
+                      calculateTimeFields(
+                        new Date(auction.startDateTime),
+                        auction.duration
+                      ).isActive
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {calculateTimeFields(
+                      new Date(auction.startDateTime),
+                      auction.duration
+                    ).isActive
+                      ? "Active"
+                      : "Ended"}
+                  </div>
+                  {/* {auction.status && (
                     <div
                       className={`absolute bottom-2 left-2 bg-white bg-opacity-90 px-2 py-1 rounded-full text-sm flex items-center ${getStatusColor(
                         auction.status
@@ -443,7 +523,7 @@ export default function BuyerDashboard() {
                         ? "Outbid"
                         : "Auction Ended"}
                     </div>
-                  )}
+                  )} */}
                 </div>
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -454,46 +534,40 @@ export default function BuyerDashboard() {
                       {auction.bids} bids
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">
+                  <h3 className="text-lg text-black font-semibold mb-2">
                     {auction.title}
                   </h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500">Current Bid</p>
                       <p className="text-xl font-bold text-gray-900">
-                        ${auction.currentBid.toLocaleString()}
+                        ${auction.currentBid + auction.startingPrice}
                       </p>
-                      {auction.yourBid && (
+                      {/* {auction.yourBid && (
                         <p className="text-xs text-gray-500 mt-1">
                           Your bid: ${auction.yourBid.toLocaleString()}
                         </p>
-                      )}
+                      )} */}
                     </div>
-                    <div className="flex flex-col space-y-2">
-                      {auction.status !== "ended" && (
-                        <button className="flex items-center space-x-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-                          <span>
-                            {auction.yourBid ? "Increase Bid" : "Bid Now"}
-                          </span>
+                    <div className="flex flex-col space-y-2 mb-10">
+                      {calculateTimeFields(
+                        new Date(auction.startDateTime),
+                        auction.duration
+                      ).isActive && (
+                        <button
+                          className="flex items-center space-x-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                          onClick={() => router.push(`/auction/${auction.id}`)}
+                        >
+                          <span>Bid Now</span>
                           <ArrowUpRight className="h-4 w-4" />
                         </button>
                       )}
-                      {!auction.isWatching && auction.status !== "ended" && (
-                        <button className="flex items-center justify-center space-x-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                          <Heart className="h-4 w-4" />
-                          <span>Watch</span>
-                        </button>
-                      )}
-                      {auction.status === "ended" &&
-                        auction.yourBid &&
-                        auction.yourBid === auction.currentBid && (
-                          <button className="flex items-center space-x-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                            <span>Pay Now</span>
-                            <DollarSign className="h-4 w-4" />
-                          </button>
-                        )}
                     </div>
                   </div>
+                  <h2 className="text-black font-md">
+                    Start Date and Time:{" "}
+                    {new Date(auction.startDateTime).toLocaleString()}
+                  </h2>
                 </div>
               </div>
             ))}
