@@ -8,13 +8,27 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
+
   const auction = await prisma.item.findUnique({ where: { id } });
 
   if (!auction) {
     return NextResponse.json({ error: "Auction not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ currentBid: auction.currentBid });
+  // Get latest bid (most recent one)
+  const latestBid = await prisma.bid.findFirst({
+    where: { itemId: id },
+    orderBy: { createdAt: "desc" },
+    select: {
+      userId: true,
+      placedAmount: true,
+    },
+  });
+
+  return NextResponse.json({
+    currentBid: auction.currentBid,
+    lastBidUserId: latestBid?.userId || null,
+  });
 }
 
 // POST: Place a new bid
@@ -43,22 +57,32 @@ export async function POST(
   if (!auction) {
     return NextResponse.json({ error: "Auction not found" }, { status: 404 });
   }
+  let updatedAmount;
+  if (auction.currentBid === 0) {
+    updatedAmount = auction.startingPrice + amount;
+  } else {
+    updatedAmount = auction.currentBid + amount;
+  }
 
-  const newAmount = auction.currentBid + amount;
+  await prisma.bid.create({
+    data: {
+      placedAmount: updatedAmount,
+      userId: user.id,
+      itemId: id,
+    },
+  });
 
-  const updated = await prisma.item.update({
+  // Step 2: Update the item’s current bid and bid count
+  await prisma.item.update({
     where: { id },
     data: {
-      currentBid: newAmount,
+      currentBid: updatedAmount,
       bids: { increment: 1 },
-      bidders: {
-        connect: { id: user.id },
-      },
     },
   });
 
   return NextResponse.json({
     success: true,
-    newBid: updated.currentBid,
+    newBid: updatedAmount,
   });
 }

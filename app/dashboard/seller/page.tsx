@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Gavel,
   // Clock,
@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface Auction {
   id: number;
@@ -44,7 +46,7 @@ interface Auction {
   startingPrice: number;
   reservePrice?: number;
   timeLeft: string;
-  image: string;
+  imageLinks: string[];
   bids: number;
   category: string;
   status: "active" | "scheduled" | "ended";
@@ -52,64 +54,68 @@ interface Auction {
   watchers: number;
   endDate: string;
   featured?: boolean;
+  isActive: boolean;
+  hasEnded: boolean;
 }
 
 export default function SellerDashboard() {
   // const [activeTab, setActiveTab] = useState("active");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [auctions, setAuctions] = useState<Auction[]>([]);
+  const router = useRouter();
   // const [showFilters, setShowFilters] = useState(false);
   // const [sortBy, setSortBy] = useState("endDate");
   // const [sortDirection, setSortDirection] = useState("asc");
 
-  const activeAuctions: Auction[] = [
-    {
-      id: 1,
-      title: "Vintage Mechanical Watch",
-      currentBid: 1250,
-      startingPrice: 800,
-      reservePrice: 1500,
-      timeLeft: "2h 15m",
-      image:
-        "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=600&q=80",
-      bids: 23,
-      category: "Accessories",
-      status: "active",
-      views: 156,
-      watchers: 12,
-      endDate: "2025-06-15",
-    },
-    {
-      id: 2,
-      title: "Modern Art Painting",
-      currentBid: 2800,
-      startingPrice: 1500,
-      reservePrice: 3000,
-      timeLeft: "4h 30m",
-      image:
-        "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80",
-      bids: 15,
-      category: "Art",
-      status: "active",
-      views: 203,
-      watchers: 18,
-      endDate: "2025-06-16",
-    },
-    {
-      id: 3,
-      title: "Antique Writing Desk",
-      currentBid: 950,
-      startingPrice: 600,
-      timeLeft: "1h 45m",
-      image:
-        "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=600&q=80",
-      bids: 18,
-      category: "Furniture",
-      status: "active",
-      views: 89,
-      watchers: 7,
-      endDate: "2025-06-14",
-    },
-  ];
+  // const activeAuctions: Auction[] = [
+  //   {
+  //     id: 1,
+  //     title: "Vintage Mechanical Watch",
+  //     currentBid: 1250,
+  //     startingPrice: 800,
+  //     reservePrice: 1500,
+  //     timeLeft: "2h 15m",
+  //     image:
+  //       "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=600&q=80",
+  //     bids: 23,
+  //     category: "Accessories",
+  //     status: "active",
+  //     views: 156,
+  //     watchers: 12,
+  //     endDate: "2025-06-15",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Modern Art Painting",
+  //     currentBid: 2800,
+  //     startingPrice: 1500,
+  //     reservePrice: 3000,
+  //     timeLeft: "4h 30m",
+  //     image:
+  //       "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80",
+  //     bids: 15,
+  //     category: "Art",
+  //     status: "active",
+  //     views: 203,
+  //     watchers: 18,
+  //     endDate: "2025-06-16",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Antique Writing Desk",
+  //     currentBid: 950,
+  //     startingPrice: 600,
+  //     timeLeft: "1h 45m",
+  //     image:
+  //       "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=600&q=80",
+  //     bids: 18,
+  //     category: "Furniture",
+  //     status: "active",
+  //     views: 89,
+  //     watchers: 7,
+  //     endDate: "2025-06-14",
+  //   },
+  // ];
 
   // const scheduledAuctions: Auction[] = [
   //   {
@@ -162,34 +168,19 @@ export default function SellerDashboard() {
   //   },
   // ];
 
-  const sidebarItems = [
-    {
-      icon: <Gavel className="h-5 w-5" />,
-      label: "My Listings",
-      href: "/seller",
-      active: true,
-    },
-    {
-      icon: <BarChart2 className="h-5 w-5" />,
-      label: "Analytics",
-      href: "/seller/analytics",
-    },
-    {
-      icon: <DollarSign className="h-5 w-5" />,
-      label: "Earnings",
-      href: "/seller/earnings",
-    },
-    {
-      icon: <Truck className="h-5 w-5" />,
-      label: "Shipments",
-      href: "/seller/shipments",
-    },
-    {
-      icon: <Settings className="h-5 w-5" />,
-      label: "Settings",
-      href: "/settings",
-    },
-  ];
+  const fetchAuctions = async () => {
+    const res1 = await fetch("/api/getUser");
+    const data1 = await res1.json();
+    const res = await fetch(`/api/seller-auction/${data1.user.id}`);
+    const data = await res.json();
+    setAuctions(data);
+  };
+
+  useEffect(() => {
+    fetchAuctions();
+  }, []);
+
+  const sidebarItems = [];
 
   // const getAuctionsForTab = () => {
   //   switch (activeTab) {
@@ -217,6 +208,32 @@ export default function SellerDashboard() {
         );
       default:
         return null;
+    }
+  };
+
+  const endAuction = async (auctionId: string) => {
+    try {
+      const res = await fetch(`/api/end-auction/${auctionId}`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(
+          `Auction ended! ${
+            data.winner
+              ? `Winner: ${data.winner} (Bid: ₹${data.winningBid})`
+              : "No bids placed"
+          }`
+        );
+        fetchAuctions();
+        // Optionally: refresh UI or navigate to result page
+      } else {
+        toast.error("Error: " + data.error);
+      }
+    } catch (error) {
+      console.error("Network error:", error);
     }
   };
 
@@ -278,7 +295,18 @@ export default function SellerDashboard() {
           </ul>
         </nav>
         <div className="p-4 border-t border-gray-200">
-          <button className="flex items-center space-x-3 text-gray-700 hover:text-gray-900 w-full">
+          <button
+            className="flex items-center space-x-3 text-gray-700 hover:text-gray-900 w-full"
+            onClick={async () => {
+              const res = await fetch("/api/logout", {
+                method: "POST",
+              });
+              if (res.ok) {
+                toast.success("Logged Out!");
+                router.push("/auth");
+              }
+            }}
+          >
             <LogOut className="h-5 w-5" />
             <span>Logout</span>
           </button>
@@ -287,7 +315,7 @@ export default function SellerDashboard() {
 
       <div className="flex-1">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-20">
+        {/* <header className="bg-white shadow-sm sticky top-0 z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <button
@@ -315,7 +343,7 @@ export default function SellerDashboard() {
               </div>
             </div>
           </div>
-        </header>
+        </header> */}
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto py-8">
@@ -470,34 +498,22 @@ export default function SellerDashboard() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Views
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
                       Time Left
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {activeAuctions.map((auction) => (
+                  {auctions.map((auction) => (
                     <tr key={auction.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 relative">
                             <Image
-                              src={auction.image}
+                              src={auction.imageLinks[0]}
                               alt={auction.title}
-                              fill
                               className="rounded-md object-cover"
-                              sizes="40px"
+                              width={40}
+                              height={40}
                             />
                             {auction.featured && (
                               <div className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-0.5">
@@ -515,8 +531,10 @@ export default function SellerDashboard() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(auction.status)}
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-900">
+                        {auction.isActive && !auction.hasEnded
+                          ? "Active"
+                          : "Not Active"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
@@ -527,40 +545,21 @@ export default function SellerDashboard() {
                         <div className="text-xs text-gray-500">
                           Start: ${auction.startingPrice.toLocaleString()}
                         </div>
-                        {auction.reservePrice && (
-                          <div className="text-xs text-gray-500">
-                            Reserve: ${auction.reservePrice.toLocaleString()}
-                          </div>
-                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {auction.bids}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <Eye className="h-4 w-4 text-gray-400 mr-1" />
-                          <span className="text-sm text-gray-500">
-                            {auction.views}
-                          </span>
-                          {auction.watchers > 0 && (
-                            <div className="ml-2 flex items-center">
-                              <Heart className="h-4 w-4 text-gray-400 mr-1" />
-                              <span className="text-sm text-gray-500">
-                                {auction.watchers}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-900">
+                        {!auction.hasEnded ? auction.timeLeft : "Ended"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {auction.timeLeft}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <button className="text-indigo-600 hover:text-indigo-900">
-                            <Eye className="h-5 w-5" />
-                          </button>
-                        </div>
+                        <button
+                          disabled={auction.hasEnded}
+                          className="px-4 py-2 disabled:bg-red-950 disabled:cursor-not-allowed bg-red-600 text-white rounded hover:bg-red-700"
+                          onClick={() => endAuction(auction.id.toString())}
+                        >
+                          End Auction
+                        </button>
                       </td>
                     </tr>
                   ))}

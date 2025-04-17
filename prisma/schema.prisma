@@ -50,6 +50,8 @@ model Item {
   watchers       Int @default(0)
   duration       Int
   startDateTime  DateTime
+  winnerId      String?
+  hasEnded      Boolean @default(false)
   bidsList         Bid[]
 }
 

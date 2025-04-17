@@ -2,6 +2,7 @@
 
 import React, { use, useEffect, useState } from "react";
 import { Clock, Tag, Package2, Calendar, MoveLeftIcon } from "lucide-react";
+import { getUser } from "@/lib/getUser";
 // import { getUser } from "@/lib/getUser";
 
 type Auction = {
@@ -57,8 +58,12 @@ function AuctionPage({ params }: Props) {
   const [auction, setAuction] = useState<Auction | null>(null);
   const [currentBid, setCurrentBid] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lastBidUserId, setLastBidUserId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isOwnLastBid = lastBidUserId === currentUserId;
 
   const handlePlaceBid = async () => {
     const bidInterval = 10; // increment value
@@ -79,6 +84,7 @@ function AuctionPage({ params }: Props) {
       const res = await fetch(`/api/placeBid/${id}`, { method: "GET" });
       const data = await res.json();
       setCurrentBid(data.currentBid);
+      setLastBidUserId(data.lastBidUserId);
     };
 
     fetchBid();
@@ -98,6 +104,10 @@ function AuctionPage({ params }: Props) {
       } finally {
         setLoading(false);
       }
+
+      const res = await fetch("/api/getUser");
+      const data = await res.json();
+      setCurrentUserId(data.user.id);
     };
 
     fetchAuction();
@@ -105,7 +115,7 @@ function AuctionPage({ params }: Props) {
 
   if (loading || !auction) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -190,14 +200,12 @@ function AuctionPage({ params }: Props) {
                 </div>
               </div>
 
-              {auction.bids > 0 && (
-                <div className="mt-6">
-                  <span className="text-2xl font-bold">
-                    Current Bid: ${currentBid + auction.startingPrice}
-                  </span>
-                  <p>Bid Interval: $10</p>
-                </div>
-              )}
+              <div className="mt-6">
+                <span className="text-2xl font-bold">
+                  Current Bid: ${currentBid}
+                </span>
+                <p>Bid Interval: $10</p>
+              </div>
 
               <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-2">Description</h2>
@@ -206,11 +214,15 @@ function AuctionPage({ params }: Props) {
 
               <div className="mt-8">
                 <button
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                  disabled={!auction.isActive}
+                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!auction.isActive || isOwnLastBid}
                   onClick={handlePlaceBid}
                 >
-                  {auction.isActive ? "Place Bid" : "Auction Ended"}
+                  {!auction.isActive
+                    ? "Auction Ended"
+                    : isOwnLastBid
+                    ? "You placed the last bid"
+                    : "Place Bid"}
                 </button>
               </div>
             </div>

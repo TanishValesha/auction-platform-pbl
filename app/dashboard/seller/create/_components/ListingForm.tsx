@@ -229,7 +229,7 @@ export default function ListingForm({ categories }: ListingFormProps) {
                   <option
                     className="text-black"
                     key={category}
-                    value={category.toLowerCase()}
+                    value={category}
                   >
                     {category}
                   </option>
